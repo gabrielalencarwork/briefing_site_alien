@@ -1,0 +1,910 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --void:#05070a;
+    --panel:#0b1210;
+    --panel-2:#0f1713;
+    --line:#1c2b23;
+    --neon:#00ff88;
+    --neon-dim:#00c96b;
+    --moss:#4d8139;
+    --ink:#eef4f0;
+    --muted:#8ea297;
+    --danger:#ff6b6b;
+    --radius:16px;
+    --font-display:'Baloo 2', system-ui, sans-serif;
+    --font-body:'Inter', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  #alien-root{
+    position:relative;
+    background:
+      radial-gradient(ellipse at 18% -10%, rgba(0,255,136,.10), transparent 45%),
+      radial-gradient(ellipse at 100% 0%, rgba(77,129,57,.14), transparent 40%),
+      var(--void);
+    color:var(--ink);
+    font-family:var(--font-body);
+    min-height:100vh;
+    padding:48px 18px 80px;
+    overflow-x:hidden;
+  }
+  #stars{position:absolute; inset:0; pointer-events:none; z-index:0;}
+  .star{position:absolute; width:2px; height:2px; background:#bfe; border-radius:50%; opacity:.5; animation:twinkle 4s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:.15;} 50%{opacity:.8;}}
+
+  .wrap{position:relative; z-index:1; max-width:660px; margin:0 auto;}
+
+  .brand{display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:34px; text-align:center;}
+  .brand img{width:52px; height:52px; filter:drop-shadow(0 0 14px rgba(0,255,136,.6));}
+  .brand .word{font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase;}
+  .brand h1{font-family:var(--font-display); font-weight:700; font-size:clamp(24px,5vw,32px); margin:2px 0 0; line-height:1.15;}
+  .brand h1 span{color:var(--neon); text-shadow:0 0 18px rgba(0,255,136,.55);}
+  .brand p{font-family:var(--font-body); color:var(--muted); font-size:14.5px; max-width:460px; margin:6px 0 0; line-height:1.5;}
+
+  /* stepper */
+  .stepper{display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:30px; gap:4px;}
+  .step{flex:1; text-align:center; position:relative;}
+  .step .dot{
+    width:34px; height:34px; margin:0 auto 8px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; font-size:13px;
+    background:var(--panel); border:2px solid var(--line); color:var(--muted);
+    transition:all .35s ease; position:relative; z-index:2;
+  }
+  .step .bar{position:absolute; top:17px; left:calc(-50% + 17px); width:calc(100% - 34px); height:2px; background:var(--line); z-index:1;}
+  .step:first-child .bar{display:none;}
+  .step .label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600;}
+  .step.active .dot{border-color:var(--neon); color:var(--neon); box-shadow:0 0 16px rgba(0,255,136,.5);}
+  .step.active .label{color:var(--ink);}
+  .step.done .dot{background:var(--neon); border-color:var(--neon); color:#03130a;}
+  .step.done .bar{background:var(--neon);}
+
+  /* card */
+  .card{
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line); border-radius:var(--radius);
+    padding:30px 26px 26px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.02);
+  }
+  .stage-eyebrow{font-family:var(--font-display); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--neon); font-weight:700; margin:0 0 4px;}
+  .stage-title{font-family:var(--font-display); font-weight:700; font-size:22px; margin:0 0 6px;}
+  .stage-sub{color:var(--muted); font-size:13.5px; margin:0 0 22px; line-height:1.5;}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block; font-size:13px; font-weight:600; margin-bottom:7px; color:var(--ink);}
+  .field .hint{display:block; font-weight:400; color:var(--muted); font-size:12px; margin-top:4px;}
+  .field input[type=text], .field input[type=email], .field input[type=tel], .field input[type=date], .field textarea{
+    width:100%; background:#070b09; border:1px solid var(--line); border-radius:10px;
+    padding:11px 13px; color:var(--ink); font-family:var(--font-body); font-size:14px;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .field input::placeholder, .field textarea::placeholder{color:#556158;}
+  .field input:focus, .field textarea:focus{outline:none; border-color:var(--neon); box-shadow:0 0 0 3px rgba(0,255,136,.15);}
+  .field textarea{resize:vertical; min-height:78px; font-family:var(--font-body);}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:520px){.row2{grid-template-columns:1fr;}}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:#070b09;
+    font-size:13px; color:var(--muted); cursor:pointer; user-select:none; transition:all .18s;
+  }
+  .chip:hover{border-color:var(--moss); color:var(--ink);}
+  .chip.on{background:rgba(0,255,136,.12); border-color:var(--neon); color:var(--neon); box-shadow:0 0 12px rgba(0,255,136,.2);}
+
+  /* niche grid */
+  #nicheSearch{margin-bottom:10px;}
+  .niche-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; max-height:340px; overflow-y:auto; padding-right:2px;}
+  @media (min-width:480px){.niche-grid{grid-template-columns:repeat(3, 1fr);}}
+  .niche-grid::-webkit-scrollbar{width:6px;}
+  .niche-grid::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+  .niche-card{
+    display:flex; align-items:center; gap:8px; padding:10px 11px; border-radius:11px;
+    border:1px solid var(--line); background:#070b09; cursor:pointer; transition:all .18s;
+    font-size:12.5px; color:var(--muted); line-height:1.25;
+  }
+  .niche-card .emoji{font-size:16px; flex-shrink:0;}
+  .niche-card:hover{border-color:var(--moss); color:var(--ink);}
+  .niche-card.on{background:rgba(0,255,136,.12); border-color:var(--neon); color:var(--neon); box-shadow:0 0 12px rgba(0,255,136,.22);}
+  .niche-card.hide{display:none;}
+
+  .colorset{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .colorset .swatch{border:1px solid var(--line); border-radius:12px; padding:10px; text-align:center; background:#070b09;}
+  .colorset .swatch label{font-size:11px; color:var(--muted); font-weight:600;}
+  .colorset input[type=color]{-webkit-appearance:none; appearance:none; width:100%; height:40px; border:none; background:none; border-radius:8px; margin-top:8px; cursor:pointer;}
+  .colorset input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+  .colorset input[type=color]::-webkit-color-swatch{border-radius:8px; border:1px solid var(--line);}
+
+  .navrow{display:flex; justify-content:space-between; align-items:center; margin-top:28px; gap:12px;}
+  .btn{
+    font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:.02em;
+    border-radius:999px; padding:13px 24px; cursor:pointer; border:1px solid transparent; transition:all .2s;
+  }
+  .btn-ghost{background:transparent; border-color:var(--line); color:var(--muted);}
+  .btn-ghost:hover{color:var(--ink); border-color:var(--muted);}
+  .btn-primary{background:var(--neon); color:#03130a; box-shadow:0 0 22px rgba(0,255,136,.35);}
+  .btn-primary:hover{background:#22ffa0; box-shadow:0 0 30px rgba(0,255,136,.55);}
+  .btn-primary:disabled{opacity:.4; cursor:not-allowed; box-shadow:none;}
+  .btn-pay{
+    width:100%; margin-top:6px; background:linear-gradient(135deg, var(--neon), #00c96b);
+    color:#03130a; box-shadow:0 0 24px rgba(0,255,136,.4); font-size:14.5px;
+  }
+  .btn-pay:hover{box-shadow:0 0 34px rgba(0,255,136,.6);}
+  .btn-pay:disabled{opacity:.55; cursor:wait;}
+  .pay-block{border-top:1px solid var(--line); padding-top:18px; margin-top:6px;}
+
+  /* stage 5: choice screen */
+  .choice-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:520px){.choice-grid{grid-template-columns:1fr;}}
+  .choice-card{
+    background:#070b09; border:1px solid var(--line); border-radius:14px; padding:22px 18px;
+    text-align:center; cursor:pointer; transition:all .2s;
+  }
+  .choice-card:hover{border-color:var(--neon); box-shadow:0 0 20px rgba(0,255,136,.2); transform:translateY(-2px);}
+  .choice-emoji{font-size:30px; margin-bottom:10px;}
+  .choice-emoji .cifrao{
+    font-family:var(--font-display); font-weight:800; color:var(--neon);
+    text-shadow:0 0 14px rgba(0,255,136,.7), 0 0 26px rgba(0,255,136,.4);
+  }
+  .choice-title{font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:6px;}
+  .choice-sub{color:var(--muted); font-size:12.5px; line-height:1.5;}
+
+  /* stage 5: plans */
+  .plans-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+  .plan-card{
+    background:#070b09; border:1px solid var(--line); border-radius:14px; padding:22px 20px; position:relative;
+  }
+  .plan-card.featured{border-color:var(--neon); background:linear-gradient(180deg, rgba(0,255,136,.08), #070b09); box-shadow:0 0 24px rgba(0,255,136,.15);}
+  .plan-tag{
+    position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+    background:var(--neon); color:#03130a; font-family:var(--font-display); font-weight:700;
+    font-size:10.5px; letter-spacing:.04em; padding:4px 12px; border-radius:999px; text-transform:uppercase;
+  }
+  .plan-name{font-family:var(--font-display); font-weight:700; font-size:17px; margin-bottom:6px;}
+  .plan-desc{color:var(--muted); font-size:12.5px; line-height:1.5; margin-bottom:12px;}
+  .plan-price{font-family:var(--font-display); font-weight:800; font-size:22px; color:var(--neon); margin-bottom:14px;}
+  .plan-price span{font-family:var(--font-body); font-weight:400; font-size:12px; color:var(--muted);}
+  .plan-features{list-style:none; padding:0; margin:0 0 16px; display:flex; flex-direction:column; gap:7px;}
+  .plan-features li{font-size:12.5px; color:#c7d2cb;}
+
+  /* stage 5: sent screen */
+  .sent-screen{text-align:center; padding:24px 6px 6px;}
+  .sent-emoji{font-size:46px; margin-bottom:14px; filter:drop-shadow(0 0 16px rgba(0,255,136,.5));}
+  .sent-title{font-family:var(--font-display); font-weight:700; font-size:19px; color:var(--neon); margin-bottom:10px; line-height:1.3;}
+  .sent-sub{color:var(--muted); font-size:13.5px; line-height:1.6; max-width:380px; margin:0 auto;}
+  .fallback-link{color:var(--neon); font-weight:600; text-decoration:underline;}
+
+  .required{color:var(--danger); margin-left:2px;}
+  .err{font-size:12px; color:var(--danger); margin-top:5px; display:none;}
+  .field.invalid input, .field.invalid textarea{border-color:var(--danger);}
+  .field.invalid .err{display:block;}
+  .niche-grid.invalid{outline:1px solid var(--danger); border-radius:12px;}
+
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+    background:var(--panel); border:1px solid var(--neon); color:var(--ink); padding:12px 20px;
+    border-radius:10px; font-size:13px; opacity:0; pointer-events:none; transition:all .3s; z-index:10;
+    box-shadow:0 0 20px rgba(0,255,136,.3); max-width:88vw; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .foot{text-align:center; color:#4d5c53; font-size:11.5px; margin-top:26px; letter-spacing:.03em;}
+</style>
+
+<div id="alien-root">
+  <div id="stars"></div>
+  <div class="wrap">
+
+    <div class="brand">
+      <img src="data:image/png;base64,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" alt="Alien Marketing Inteligente">
+      <div class="word">Agência Alien · Marketing Inteligente</div>
+      <h1>Briefing para o seu <span>site Profissional</span></h1>
+      <p>Reunimos aqui o que precisamos saber para abduzir seu negócio e transformá-lo numa página que converte. Leva uns 5 minutos — vamos nessa?</p>
+    </div>
+
+    <div class="stepper" id="stepper"></div>
+
+    <form class="card" id="alienForm" novalidate>
+      <div id="stagesHost"></div>
+
+      <div class="navrow">
+        <button type="button" class="btn btn-ghost" id="btnBack">Voltar</button>
+        <button type="button" class="btn btn-primary" id="btnNext">Avançar</button>
+      </div>
+    </form>
+
+    <div class="foot">alientrafego@gmail.com · (73) 99852-9223 · alienmkt.com.br</div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  const root = document.getElementById('alien-root');
+
+  // starfield
+  const starsHost = root.querySelector('#stars');
+  for(let i=0;i<50;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDelay = (Math.random()*4)+'s';
+    s.style.width = s.style.height = (Math.random()<0.15 ? '3px':'2px');
+    starsHost.appendChild(s);
+  }
+
+  // ---------------------------------------------------------------------
+  // 30 nichos com maior potencial/necessidade de landing page + perguntas
+  // específicas para cada um. Para adicionar um novo nicho, basta incluir
+  // um novo objeto neste array seguindo o mesmo formato.
+  // ---------------------------------------------------------------------
+  const NICHES = [
+    {key:'fotografia', emoji:'📷', label:'Fotografia',
+      specialties:['Casamento','Gestante/Newborn','Ensaio pessoal','Corporativo','Produto','Eventos','Moda'],
+      q1:'Liste seus pacotes/serviços, com breve descrição de cada um', q1ph:'Ex.: Pacote Essencial — 1h de sessão, 20 fotos editadas...',
+      q2:'Quais dúvidas os clientes mais têm antes de fechar?', q2ph:'Ex.: prazo de entrega, se retoca fotos, se viaja',
+      extra:['Portfólio/Galeria']},
+    {key:'advocacia', emoji:'⚖️', label:'Advocacia',
+      specialties:['Trabalhista','Cível','Família','Empresarial','Criminal','Previdenciário','Tributário'],
+      q1:'Quais áreas de atuação e tipos de caso você atende?', q1ph:'Ex.: divórcio, pensão alimentícia, ação trabalhista...',
+      q2:'Quais dúvidas os clientes mais têm antes de contratar?', q2ph:'Ex.: valor de honorários, prazo do processo, chances de êxito',
+      extra:['Áreas de atuação','Artigos/Blog jurídico']},
+    {key:'odontologia', emoji:'🦷', label:'Clínica Odontológica',
+      specialties:['Ortodontia','Implantes','Clareamento','Estética','Odontopediatria','Prótese','Urgência'],
+      q1:'Quais tratamentos e procedimentos você quer destacar?', q1ph:'Ex.: implante dentário, clareamento a laser...',
+      q2:'Quais os principais receios/dúvidas dos pacientes?', q2ph:'Ex.: dor, valor, convênio, tempo de tratamento',
+      extra:['Convênios aceitos','Antes e depois']},
+    {key:'estetica', emoji:'💆', label:'Clínica de Estética',
+      specialties:['Facial','Corporal','Harmonização','Depilação a laser','Emagrecimento','Skincare'],
+      q1:'Quais procedimentos você quer destacar?', q1ph:'Ex.: botox, preenchimento, limpeza de pele...',
+      q2:'Dúvidas comuns antes de agendar?', q2ph:'Ex.: dor, tempo de recuperação, resultado, preço',
+      extra:['Antes e depois','Promoções do mês']},
+    {key:'medica', emoji:'🩺', label:'Clínica/Consultório Médico',
+      specialties:['Clínico geral','Cardiologia','Dermatologia','Pediatria','Ginecologia','Ortopedia','Endocrinologia'],
+      q1:'Quais especialidades e serviços a clínica oferece?', q1ph:'Ex.: consultas, exames, cirurgias...',
+      q2:'Dúvidas frequentes dos pacientes?', q2ph:'Ex.: convênios aceitos, tempo de espera, urgência',
+      extra:['Convênios aceitos','Corpo clínico']},
+    {key:'psicologia', emoji:'🧠', label:'Psicologia',
+      specialties:['Terapia individual','Casal','Infantil','Ansiedade/Depressão','Atendimento online','TCC'],
+      q1:'Quais abordagens e tipos de atendimento você oferece?', q1ph:'Ex.: TCC, psicanálise, online ou presencial...',
+      q2:'Dúvidas comuns de quem procura terapia pela 1ª vez?', q2ph:'Ex.: sigilo, valor da sessão, atendimento online',
+      extra:['Abordagem terapêutica']},
+    {key:'nutricao', emoji:'🥗', label:'Nutrição',
+      specialties:['Emagrecimento','Esportiva','Clínica','Infantil','Vegetariana/Vegana','Reeducação alimentar'],
+      q1:'Quais tipos de acompanhamento você oferece?', q1ph:'Ex.: consulta única, acompanhamento mensal...',
+      q2:'Dúvidas mais comuns dos pacientes?', q2ph:'Ex.: resultado em quanto tempo, dieta restritiva',
+      extra:['Antes e depois']},
+    {key:'fisioterapia', emoji:'🦵', label:'Fisioterapia',
+      specialties:['Ortopédica','Esportiva','Neurológica','Pélvica','RPG','Pilates clínico'],
+      q1:'Quais especialidades e tratamentos você oferece?', q1ph:'Ex.: reabilitação pós-cirúrgica, dor crônica...',
+      q2:'Dúvidas comuns dos pacientes?', q2ph:'Ex.: convênio, número de sessões, dor durante o tratamento',
+      extra:['Convênios aceitos']},
+    {key:'personal', emoji:'🏋️', label:'Personal Trainer / Academia',
+      specialties:['Musculação','Emagrecimento','Hipertrofia','Funcional','Consultoria online','Aulas em grupo'],
+      q1:'Quais modalidades e planos você oferece?', q1ph:'Ex.: plano mensal, consultoria online, treino em dupla...',
+      q2:'Dúvidas comuns de quem quer começar?', q2ph:'Ex.: preço, horários, resultado em quanto tempo',
+      extra:['Planos e valores','Resultados de alunos']},
+    {key:'arquitetura', emoji:'📐', label:'Arquitetura / Design de Interiores',
+      specialties:['Residencial','Comercial','Paisagismo','Consultoria','Reforma','Projeto 3D'],
+      q1:'Quais tipos de projeto você realiza?', q1ph:'Ex.: projeto completo, consultoria de decoração...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: prazo do projeto, investimento médio',
+      extra:['Portfólio de projetos']},
+    {key:'imobiliaria', emoji:'🏠', label:'Imobiliária / Corretor',
+      specialties:['Venda','Locação','Lançamentos','Imóveis de luxo','Comercial','Terrenos'],
+      q1:'Quais tipos de imóveis você trabalha?', q1ph:'Ex.: apartamentos, casas, imóveis comerciais...',
+      q2:'Dúvidas comuns de compradores/locatários?', q2ph:'Ex.: documentação, financiamento, condições de pagamento',
+      extra:['Busca de imóveis','Imóveis em destaque']},
+    {key:'contabilidade', emoji:'📊', label:'Contabilidade',
+      specialties:['MEI','Empresas','Abertura de empresa','Consultoria tributária','Folha de pagamento','Imposto de renda'],
+      q1:'Quais serviços contábeis você oferece?', q1ph:'Ex.: abertura de CNPJ, folha de pagamento, planejamento tributário...',
+      q2:'Dúvidas comuns de quem procura contador?', q2ph:'Ex.: valor da mensalidade, tempo de abertura de empresa',
+      extra:['Planos e valores']},
+    {key:'beleza', emoji:'💇', label:'Salão de Beleza / Barbearia',
+      specialties:['Cabelo','Barba','Manicure/Pedicure','Coloração','Alongamento','Maquiagem'],
+      q1:'Quais serviços e combos você oferece?', q1ph:'Ex.: corte + barba, coloração, penteado para eventos...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: agendamento, tempo de atendimento, preço',
+      extra:['Agendamento online','Galeria de trabalhos']},
+    {key:'petshop', emoji:'🐾', label:'Pet Shop / Veterinária',
+      specialties:['Banho e tosa','Consultas','Vacinas','Cirurgias','Hotel para pets','Adestramento'],
+      q1:'Quais serviços você oferece?', q1ph:'Ex.: banho e tosa, consultas veterinárias, hospedagem...',
+      q2:'Dúvidas comuns dos tutores?', q2ph:'Ex.: urgência, preço, agendamento',
+      extra:['Agendamento online']},
+    {key:'restaurante', emoji:'🍽️', label:'Restaurante / Bar',
+      specialties:['Almoço','Jantar','Delivery','Eventos privados','Happy hour','Buffet livre'],
+      q1:'Quais são os destaques do seu cardápio?', q1ph:'Ex.: pratos principais, especialidades da casa...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: horário de funcionamento, reservas, delivery',
+      extra:['Cardápio','Reservas']},
+    {key:'confeitaria', emoji:'🎂', label:'Confeitaria / Doceria',
+      specialties:['Bolos personalizados','Doces para festas','Encomendas','Casamento','Assinatura mensal'],
+      q1:'Quais produtos e encomendas você oferece?', q1ph:'Ex.: bolo decorado, docinhos, mesa de doces...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: prazo de encomenda, entrega, personalização',
+      extra:['Catálogo de produtos']},
+    {key:'moda', emoji:'👗', label:'Moda / Loja de Roupas',
+      specialties:['Feminina','Masculina','Infantil','Plus size','Fitness','Acessórios'],
+      q1:'Quais categorias de produto você vende?', q1ph:'Ex.: vestidos, moda praia, acessórios...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: tamanhos, troca, prazo e valor do frete',
+      extra:['Catálogo/Loja online']},
+    {key:'infoproduto', emoji:'🎓', label:'Infoprodutor / Coach / Mentor',
+      specialties:['Curso online','Mentoria individual','Mentoria em grupo','Ebook','Comunidade/Assinatura'],
+      q1:'Descreva seu(s) produto(s) e formato de entrega', q1ph:'Ex.: curso gravado + suporte via WhatsApp por 3 meses...',
+      q2:'Dúvidas comuns de quem pensa em comprar?', q2ph:'Ex.: garantia, suporte, tempo de acesso ao conteúdo',
+      extra:['Prova social/Resultados','Garantia']},
+    {key:'igreja', emoji:'🙏', label:'Igreja / Ministério',
+      specialties:['Cultos','Células/Grupos pequenos','Eventos especiais','Ação social','Escola bíblica'],
+      q1:'Quais atividades e horários você quer divulgar?', q1ph:'Ex.: culto de domingo, células durante a semana...',
+      q2:'O que visitantes de primeira viagem mais perguntam?', q2ph:'Ex.: horário, endereço, como se vestir',
+      extra:['Agenda de eventos','Transmissão ao vivo']},
+    {key:'idiomas', emoji:'🗣️', label:'Escola de Idiomas / Curso Livre',
+      specialties:['Inglês','Espanhol','Reforço escolar','Aulas online','Aulas presenciais','Preparatório'],
+      q1:'Quais cursos e níveis você oferece?', q1ph:'Ex.: inglês básico ao avançado, conversação...',
+      q2:'Dúvidas comuns de quem procura curso?', q2ph:'Ex.: duração, material incluso, horários disponíveis',
+      extra:['Turmas e horários']},
+    {key:'autoescola', emoji:'🚗', label:'Autoescola',
+      specialties:['Categoria B','Categoria A','Renovação de CNH','Aulas extras','Teórica EAD'],
+      q1:'Quais serviços e categorias você oferece?', q1ph:'Ex.: CNH categoria B, aulas de reciclagem...',
+      q2:'Dúvidas comuns dos alunos?', q2ph:'Ex.: prazo para tirar a CNH, valor total, documentação necessária',
+      extra:['Pacotes e valores']},
+    {key:'estetica_automotiva', emoji:'🚙', label:'Estética Automotiva / Lava-Jato',
+      specialties:['Lavagem simples','Polimento','Vitrificação','Higienização interna','Estacionamento','Espaço para eventos'],
+      q1:'Quais serviços e pacotes você oferece?', q1ph:'Ex.: lavagem completa, polimento técnico, mensalista...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: tempo de espera, agendamento, preço dos pacotes',
+      extra:['Pacotes e valores']},
+    {key:'buffet', emoji:'🎉', label:'Buffet / Casa de Festas',
+      specialties:['Casamento','Aniversário infantil','Corporativo','Debutante','Formatura'],
+      q1:'Quais estruturas e pacotes você oferece?', q1ph:'Ex.: salão para 100 pessoas, buffet completo, decoração...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: capacidade, o que está incluso, disponibilidade de datas',
+      extra:['Galeria de festas','Disponibilidade de datas']},
+    {key:'marcenaria', emoji:'🪚', label:'Marcenaria / Móveis Planejados',
+      specialties:['Cozinha planejada','Closet','Quarto','Escritório','Móveis sob medida'],
+      q1:'Quais ambientes e tipos de móveis você produz?', q1ph:'Ex.: cozinhas planejadas, guarda-roupas sob medida...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: prazo de entrega, material usado, orçamento',
+      extra:['Portfólio de projetos']},
+    {key:'construcao', emoji:'🏗️', label:'Construção Civil / Reformas',
+      specialties:['Construção residencial','Reforma','Ampliação','Consultoria','Projeto estrutural'],
+      q1:'Quais tipos de obra você executa?', q1ph:'Ex.: construção do zero, reforma completa, pequenos reparos...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: prazo de obra, orçamento, garantia do serviço',
+      extra:['Portfólio de obras']},
+    {key:'assistencia_tecnica', emoji:'🔧', label:'Assistência Técnica',
+      specialties:['Celular','Computador/Notebook','Consoles','Manutenção preventiva','Venda de peças'],
+      q1:'Quais serviços e reparos você oferece?', q1ph:'Ex.: troca de tela, formatação, limpeza de placa...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: prazo do conserto, garantia, orçamento sem compromisso',
+      extra:['Tabela de preços']},
+    {key:'energia_solar', emoji:'☀️', label:'Energia Solar',
+      specialties:['Residencial','Comercial','Rural','Manutenção','Financiamento'],
+      q1:'Quais soluções você oferece?', q1ph:'Ex.: instalação completa, manutenção, projeto personalizado...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: economia gerada, prazo de instalação, formas de financiamento',
+      extra:['Simulador de economia']},
+    {key:'retiro_holistico', emoji:'🧘', label:'Retiro / Terapias Holísticas',
+      specialties:['Yoga','Meditação','Retiro de fim de semana','Terapias integrativas','Constelação familiar'],
+      q1:'Quais vivências/terapias você oferece?', q1ph:'Ex.: retiro de 3 dias, sessões individuais de terapia...',
+      q2:'Dúvidas comuns de quem nunca participou?', q2ph:'Ex.: o que levar, nível de experiência necessário, valor',
+      extra:['Próximas datas/turmas']},
+    {key:'cerimonialista', emoji:'💍', label:'Cerimonialista / Eventos',
+      specialties:['Casamento completo','Day of coordinator','Debutante','Eventos corporativos','Consultoria de noivos'],
+      q1:'Quais serviços e pacotes você oferece?', q1ph:'Ex.: assessoria completa, coordenação do dia, consultoria...',
+      q2:'Dúvidas comuns dos noivos?', q2ph:'Ex.: quando contratar, o que está incluso no pacote',
+      extra:['Portfólio de eventos']},
+    {key:'turismo', emoji:'✈️', label:'Agência de Viagens / Turismo',
+      specialties:['Pacotes nacionais','Pacotes internacionais','Lua de mel','Viagens corporativas','Turismo de aventura'],
+      q1:'Quais destinos e pacotes você oferece?', q1ph:'Ex.: pacote para Fernando de Noronha, lua de mel no Caribe...',
+      q2:'Dúvidas comuns dos clientes?', q2ph:'Ex.: forma de pagamento, o que está incluso, seguro viagem',
+      extra:['Destinos em destaque']},
+  ];
+
+  const UNIVERSAL_SECTIONS = ['Hero/Capa','Sobre','Serviços/Produtos','Depoimentos','FAQ','Formulário de contato','Localização','Redes sociais'];
+
+  const STAGES = [
+    {label:'Abdução', title:'Abdução', eyebrow:'Etapa 01', sub:'Vamos começar te conhecendo — qual seu nicho e quem é você.'},
+    {label:'Alinhamento', title:'Alinhamento Alien', eyebrow:'Etapa 02', sub:'Objetivo da página, público e a identidade visual que ela deve carregar.'},
+    {label:'Desenvolvimento', title:'Desenvolvimento', eyebrow:'Etapa 03', sub:'Agora as perguntas certas para o seu tipo de negócio.'},
+    {label:'Evolução', title:'Evolução Alien', eyebrow:'Etapa 04', sub:'Últimos detalhes antes de enviar seu briefing para a nossa equipe.'},
+    {label:'Decisão', title:'Última Etapa', eyebrow:'Etapa 05', sub:''},
+  ];
+
+  // O InfiniteTag agora fica configurado no arquivo /api/create-payment-link.js
+  // (do lado do servidor), não mais aqui — isso evita o bloqueio de CORS do navegador.
+
+  // Chave gratuita do Web3Forms — gere a sua em https://web3forms.com informando
+  // alientrafego@gmail.com. O e-mail chega na hora, sem precisar de conta/login.
+  const WEB3FORMS_ACCESS_KEY = '03d9e93a-9d98-4ce3-95c7-26fa9adb57e4';
+
+  async function enviarEmailBriefing(a, n, msg){
+    if(!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.indexOf('coloque_') === 0) return;
+    const nicheName = n ? n.label : (a.nicho_outro || 'não informado');
+    const payload = {
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: 'Novo Briefing — ' + nicheName + (a.nome ? ' · ' + a.nome : ''),
+      from_name: a.nome || 'Formulário Alien',
+      email: a.email || undefined,
+      message: msg.replace(/\*/g, '')
+    };
+    try{
+      await fetch('https://api.web3forms.com/submit', {
+        method:'POST',
+        headers:{'Content-Type':'application/json', Accept:'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } catch(e){ /* falha silenciosa — o WhatsApp continua sendo o caminho principal */ }
+  }
+
+  function chips(name, options, multi){
+    return options.map(o=>`<div class="chip" data-name="${name}" data-multi="${multi?1:0}" data-value="${o}">${o}</div>`).join('');
+  }
+
+  function getNiche(){
+    return NICHES.find(n=>n.key === answers.nicho_key) || null;
+  }
+
+  function stage1HTML(){
+    const cards = NICHES.map(n=>`<div class="niche-card" data-key="${n.key}"><span class="emoji">${n.emoji}</span><span>${n.label}</span></div>`).join('')
+      + `<div class="niche-card" data-key="outro"><span class="emoji">✨</span><span>Meu nicho não está aqui</span></div>`;
+    return `
+    <div class="field">
+      <label>Qual é o seu nicho?<span class="required">*</span></label>
+      <input type="text" id="nicheSearch" placeholder="Buscar nicho...">
+      <div class="niche-grid" id="nicheGrid">${cards}</div>
+      <div class="err" id="nicheErr">Selecione o nicho que mais combina com seu negócio.</div>
+    </div>
+    <div class="field" id="nicheOutroWrap" style="display:none;">
+      <label>Conte pra gente qual é o seu nicho</label>
+      <input type="text" name="nicho_outro" placeholder="Ex.: Confeitaria vegana">
+    </div>
+    <div class="field"><label>Nome<span class="required">*</span></label>
+      <input type="text" name="nome" placeholder="Seu nome ou o nome do responsável" required>
+      <div class="err">Conta pra gente seu nome :)</div>
+    </div>
+    <div class="field"><label>Nome do negócio/marca</label>
+      <input type="text" name="empresa" placeholder="Ex.: Studio Luz Natural"></div>
+    <div class="row2">
+      <div class="field"><label>WhatsApp<span class="required">*</span></label>
+        <input type="tel" name="whatsapp" placeholder="(00) 00000-0000" required>
+        <div class="err">Precisamos do seu WhatsApp para responder o briefing.</div>
+      </div>
+      <div class="field"><label>E-mail</label>
+        <input type="email" name="email" placeholder="voce@email.com"></div>
+    </div>
+    <div class="field"><label>Instagram</label>
+      <input type="text" name="instagram" placeholder="@seuperfil"></div>
+    <div class="field"><label>Cidades/regiões onde atua</label>
+      <input type="text" name="cidades" placeholder="Ex.: Montes Claros e região"></div>
+    <div class="field"><label>O que diferencia seu trabalho da concorrência?</label>
+      <textarea name="diferencial" placeholder="Por que o cliente deveria te escolher?"></textarea></div>
+    `;
+  }
+
+  function stage2HTML(){
+    return `
+    <div class="field"><label>Objetivo principal da página</label>
+      <div class="chips">${chips('objetivo', ['Gerar orçamentos','Agendar/marcar horário','Vender direto','Apresentação institucional','Divulgar evento'], false)}</div></div>
+    <div class="field"><label>Qual ação você quer que o visitante realize? (CTA principal)</label>
+      <input type="text" name="cta" placeholder="Ex.: Solicitar orçamento pelo WhatsApp"></div>
+    <div class="field"><label>Quem é o seu cliente ideal?</label>
+      <textarea name="publico" placeholder="Perfil, idade, momento de vida, o que ele busca"></textarea></div>
+    <div class="field"><label>Você já tem identidade visual definida?</label>
+      <div class="chips">${chips('identidade', ['Sim, completa','Só o logo','Não tenho'], false)}</div></div>
+    <div class="field"><label>Cores da marca (se já tiver — ajuste os seletores abaixo)</label>
+      <div class="colorset">
+        <div class="swatch"><label>Primária</label><input type="color" name="cor_primaria" value="#00ff88"></div>
+        <div class="swatch"><label>Secundária</label><input type="color" name="cor_secundaria" value="#4d8139"></div>
+        <div class="swatch"><label>De apoio</label><input type="color" name="cor_apoio" value="#05070a"></div>
+      </div>
+    </div>
+    <div class="field"><label>Se ainda não tem cores definidas, que sensação a página deve transmitir?</label>
+      <div class="chips">${chips('sensacao', ['Elegante','Moderno','Delicado','Vibrante','Rústico','Luxuoso','Divertido'], true)}</div></div>
+    `;
+  }
+
+  function stage3HTML(){
+    const n = getNiche();
+    const nome = n ? n.label : (answers.nicho_outro || 'seu negócio');
+    const specialties = n ? n.specialties : null;
+    const extra = n ? n.extra : [];
+    const sections = UNIVERSAL_SECTIONS.concat(extra);
+    const q1 = n ? n.q1 : 'Liste seus principais produtos/serviços/pacotes, com breve descrição';
+    const q1ph = n ? n.q1ph : 'Descreva o que você oferece...';
+    const q2 = n ? n.q2 : 'Quais as dúvidas mais comuns dos seus clientes antes de fechar negócio?';
+    const q2ph = n ? n.q2ph : 'Ex.: preço, prazo, forma de pagamento';
+
+    return `
+    <div class="field" style="margin-bottom:22px;">
+      <label style="font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);">Perguntas para o nicho: <span style="color:var(--neon);">${nome}</span></label>
+    </div>
+    ${specialties ? `<div class="field"><label>Quais são suas especialidades dentro desse nicho?</label>
+      <div class="chips">${chips('especialidades', specialties, true)}</div></div>` : ''}
+    <div class="field"><label>${q1}</label>
+      <textarea name="q1" placeholder="${q1ph}"></textarea></div>
+    <div class="field"><label>${q2}</label>
+      <textarea name="q2" placeholder="${q2ph}"></textarea></div>
+    <div class="field"><label>Seções que deseja na página</label>
+      <div class="chips">${chips('secoes', sections, true)}</div></div>
+    <div class="field"><label>Materiais que você já pode fornecer</label>
+      <div class="chips">${chips('materiais', ['Logotipo','Fotos/imagens','Vídeos','Textos prontos','Depoimentos','Tabela de preços'], true)}</div></div>
+    <div class="field"><label>Sites ou perfis que você admira (e por quê)</label>
+      <textarea name="referencias" placeholder="Cole links ou descreva o que gosta"></textarea></div>
+    <div class="field"><label>Algo que você definitivamente NÃO quer na sua página?</label>
+      <textarea name="evitar" placeholder="Cores, estilos, excesso de texto etc."></textarea></div>
+    `;
+  }
+
+  function stage4HTML(){
+    return `
+    <div class="field"><label>Já tem domínio (site) registrado?</label>
+      <div class="chips">${chips('dominio', ['Sim','Não, preciso de ajuda'], false)}</div></div>
+    <div class="field"><label>Existe um prazo/data limite para o lançamento?</label>
+      <input type="text" name="prazo" placeholder="Ex.: antes da alta temporada"></div>
+    <div class="field"><label>Orçamento de referência para o projeto</label>
+      <input type="text" name="orcamento" placeholder="Ex.: até R$ 1.500"></div>
+    <div class="field"><label>Alguma outra informação importante?</label>
+      <textarea name="obs" placeholder="Fique à vontade para completar o que achar necessário"></textarea></div>
+    `;
+  }
+
+  const PLANS = [
+    {key:'essencial', tag:null, name:'01. Essencial',
+      desc:'O seu consultório digital. Um cartão de visitas online impecável e ultra-rápido.',
+      price:708, priceLabel:'R$708', installment:'12x R$59',
+      features:['Site de 1 página (rápido)','Hospedagem + Domínio (1 ano)','Botão de agendamento WhatsApp','Layout Responsivo']},
+    {key:'converte', tag:'MAIS ESCOLHIDO', name:'02. Que Converte',
+      desc:'Autoridade e posicionamento. Destaque-se na região e converta visitantes em clientes.',
+      price:1497, priceLabel:'R$1.497', installment:'12x R$147',
+      features:['Site completo (múltiplas seções)','Textos estratégicos (Copy)','Otimização Google Meu Negócio','Inteligência de dados (Pixel)']},
+    {key:'completo', tag:null, name:'03. Alien Completo',
+      desc:'Escala e agenda cheia. A solução definitiva de captação ativa de clientes.',
+      price:2500, priceLabel:'R$2.500', installment:'12x R$208',
+      features:['Toda a estrutura do Plano 02','2 meses de gestão de tráfego','Anúncios Google/Meta segmentados','Relatórios de performance']},
+  ];
+
+  let paymentView = 'choice'; // 'choice' | 'plans' | 'sent_info' | 'sent_plan_ok' | 'sent_plan_fail'
+  let lastPlanName = '';
+  let lastPlanUrl = '';
+
+  function choiceHTML(){
+    return `
+    <div class="choice-grid">
+      <div class="choice-card" id="choicePlano">
+        <div class="choice-emoji"><span class="cifrao">$</span></div>
+        <div class="choice-title">Enviar Informações e Escolher um Plano</div>
+        <div class="choice-sub">Veja os planos disponíveis e já garanta seu projeto, à vista ou parcelado.</div>
+      </div>
+      <div class="choice-card" id="choiceInfo">
+        <div class="choice-emoji">✉️</div>
+        <div class="choice-title">Somente Enviar Informações</div>
+        <div class="choice-sub">Envie o briefing agora e efetue o pagamento depois.</div>
+      </div>
+    </div>`;
+  }
+
+  function planCardHTML(p){
+    return `
+    <div class="plan-card ${p.tag?'featured':''}">
+      ${p.tag ? `<div class="plan-tag">${p.tag}</div>` : ''}
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-desc">${p.desc}</div>
+      <div class="plan-price">${p.priceLabel} <span>à vista ou ${p.installment}</span></div>
+      <ul class="plan-features">${p.features.map(f=>`<li>✓ ${f}</li>`).join('')}</ul>
+      <button type="button" class="btn btn-pay plan-select-btn" data-key="${p.key}">Escolher este plano</button>
+    </div>`;
+  }
+
+  function plansHTML(){
+    return `
+    <button type="button" class="btn btn-ghost" id="backToChoice" style="margin-bottom:18px;">← Voltar</button>
+    <div class="plans-grid">${PLANS.map(planCardHTML).join('')}</div>`;
+  }
+
+  function sentScreenHTML(sub){
+    return `
+    <div class="sent-screen">
+      <div class="sent-emoji">🛸</div>
+      <div class="sent-title">Seu negócio acaba de ser abduzido pelos nossos Aliens!</div>
+      <div class="sent-sub">${sub}</div>
+    </div>`;
+  }
+
+  function stage5HTML(){
+    if(paymentView === 'plans') return plansHTML();
+    if(paymentView === 'sent_info') return sentScreenHTML('Recebemos suas informações. Faremos contato em breve.');
+    if(paymentView === 'sent_plan_ok') return sentScreenHTML(
+      'Suas informações já estão com a gente e o pagamento do plano <strong>'+lastPlanName+'</strong> foi aberto em outra aba.<br><br>' +
+      'Não apareceu nada? O navegador pode ter bloqueado o pop-up. <a class="fallback-link" href="'+lastPlanUrl+'" target="_blank" rel="noopener">Clique aqui para abrir o pagamento</a>.'
+    );
+    if(paymentView === 'sent_plan_fail') return sentScreenHTML(
+      'Suas informações já estão com a gente! Tivemos uma instabilidade ao gerar o pagamento automático do plano <strong>'+lastPlanName+'</strong> — vamos te enviar o link de pagamento em instantes pelo WhatsApp ou e-mail.'
+    );
+    return choiceHTML();
+  }
+
+  const STAGE_BUILDERS = [stage1HTML, stage2HTML, stage3HTML, stage4HTML, stage5HTML];
+
+  let current = 0;
+  const answers = {};
+
+  const stepperHost = document.getElementById('stepper');
+  const stagesHost = document.getElementById('stagesHost');
+  const btnBack = document.getElementById('btnBack');
+  const btnNext = document.getElementById('btnNext');
+  const toast = document.getElementById('toast');
+
+  function renderStepper(){
+    stepperHost.innerHTML = STAGES.map((s,i)=>`
+      <div class="step ${i===current?'active':''} ${i<current?'done':''}">
+        <div class="bar"></div>
+        <div class="dot">${i<current?'✓':('0'+(i+1))}</div>
+        <div class="label">${s.label}</div>
+      </div>`).join('');
+  }
+
+  function wireChips(){
+    stagesHost.querySelectorAll('.chip').forEach(chip=>{
+      const key = chip.dataset.name+'::'+chip.dataset.value;
+      if(answers.__chips && answers.__chips[key]) chip.classList.add('on');
+      chip.addEventListener('click', ()=>{
+        const multi = chip.dataset.multi === '1';
+        if(!multi){
+          stagesHost.querySelectorAll(`.chip[data-name="${chip.dataset.name}"]`).forEach(c=>{
+            c.classList.remove('on');
+            delete (answers.__chips||{})[c.dataset.name+'::'+c.dataset.value];
+          });
+        }
+        chip.classList.toggle('on');
+        answers.__chips = answers.__chips || {};
+        const k = chip.dataset.name+'::'+chip.dataset.value;
+        if(chip.classList.contains('on')) answers.__chips[k]=true; else delete answers.__chips[k];
+      });
+    });
+  }
+
+  function wireNicheGrid(){
+    const grid = document.getElementById('nicheGrid');
+    if(!grid) return;
+    grid.querySelectorAll('.niche-card').forEach(card=>{
+      if(card.dataset.key === answers.nicho_key) card.classList.add('on');
+      card.addEventListener('click', ()=>{
+        grid.querySelectorAll('.niche-card').forEach(c=>c.classList.remove('on'));
+        card.classList.add('on');
+        answers.nicho_key = card.dataset.key;
+        grid.classList.remove('invalid');
+        const outroWrap = document.getElementById('nicheOutroWrap');
+        outroWrap.style.display = card.dataset.key === 'outro' ? 'block' : 'none';
+      });
+    });
+    const search = document.getElementById('nicheSearch');
+    search.addEventListener('input', ()=>{
+      const q = search.value.trim().toLowerCase();
+      grid.querySelectorAll('.niche-card').forEach(c=>{
+        const txt = c.textContent.toLowerCase();
+        c.classList.toggle('hide', q.length>0 && !txt.includes(q));
+      });
+    });
+    if(answers.nicho_key === 'outro'){
+      document.getElementById('nicheOutroWrap').style.display = 'block';
+    }
+  }
+
+  async function gerarLinkInfinitePay(valorReais, descricao){
+    const priceCents = Math.round(parseFloat(String(valorReais).replace(/\./g,'').replace(',', '.')) * 100);
+    if(!priceCents || priceCents <= 0) throw new Error('valor inválido');
+    const res = await fetch('/api/create-payment-link', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ price: priceCents, description: descricao || 'Projeto Alien Marketing Inteligente' })
+    });
+    const data = await res.json();
+    if(!res.ok || !data.url) throw new Error(data.error || 'falha na API');
+    return data.url;
+  }
+
+  async function finalizarEnvio(opts){
+    saveStageValues();
+    const n = getNiche();
+    let msg = buildMessage();
+    msg += '\n\n*Decisão final*\n';
+    msg += opts.modo === 'plano'
+      ? ('Optou por: Escolher Plano — ' + opts.plano.name + ' (' + opts.plano.priceLabel + ')')
+      : 'Optou por: Enviar informações (decidir depois)';
+    await enviarEmailBriefing(answers, n, msg);
+    if(opts.modo === 'plano'){
+      try{
+        const url = await gerarLinkInfinitePay(opts.plano.price, opts.plano.name + ' — ' + (n?n.label:'Projeto Alien'));
+        return url;
+      } catch(e){
+        console.error('[Alien] Falha ao gerar link InfinitePay:', e);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  function updateNavButtons(){
+    if(current !== STAGES.length-1){
+      btnBack.style.visibility = current===0 ? 'hidden' : 'visible';
+      btnNext.style.display = 'inline-block';
+      btnNext.textContent = 'Avançar';
+      return;
+    }
+    btnNext.style.display = 'none';
+    if(paymentView === 'choice') btnBack.style.visibility = 'visible';
+    else btnBack.style.visibility = 'hidden';
+  }
+
+  function rerenderStage5(){
+    stagesHost.querySelector('#stagesInner').innerHTML = stage5HTML();
+    wirePaymentStage();
+    updateNavButtons();
+  }
+
+  function wirePaymentStage(){
+    if(paymentView === 'choice'){
+      document.getElementById('choicePlano').addEventListener('click', ()=>{
+        paymentView = 'plans';
+        rerenderStage5();
+      });
+      document.getElementById('choiceInfo').addEventListener('click', async ()=>{
+        const card = document.getElementById('choiceInfo');
+        card.style.opacity = '.6'; card.style.pointerEvents = 'none';
+        await finalizarEnvio({modo:'info'});
+        paymentView = 'sent_info';
+        rerenderStage5();
+      });
+    } else if(paymentView === 'plans'){
+      document.getElementById('backToChoice').addEventListener('click', ()=>{
+        paymentView = 'choice';
+        rerenderStage5();
+      });
+      stagesHost.querySelectorAll('.plan-select-btn').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          const plano = PLANS.find(p=>p.key === btn.dataset.key);
+          btn.disabled = true;
+          btn.textContent = 'Processando...';
+          // abre a aba já no clique (gesto síncrono do usuário), antes de qualquer await —
+          // isso evita que o navegador bloqueie o pop-up depois das chamadas de rede.
+          const paymentWindow = window.open('', '_blank');
+          const url = await finalizarEnvio({modo:'plano', plano});
+          lastPlanName = plano.name;
+          if(url){
+            lastPlanUrl = url;
+            if(paymentWindow){ paymentWindow.location.href = url; }
+            else { window.open(url, '_blank'); }
+            paymentView = 'sent_plan_ok';
+          } else {
+            if(paymentWindow) paymentWindow.close();
+            paymentView = 'sent_plan_fail';
+          }
+          rerenderStage5();
+        });
+      });
+    }
+  }
+
+  function renderStage(){
+    const s = STAGES[current];
+    stagesHost.innerHTML = `
+      <div class="stage-eyebrow">${s.eyebrow}</div>
+      <div class="stage-title">${s.title}</div>
+      <div class="stage-sub">${s.sub}</div>
+      <div id="stagesInner">${STAGE_BUILDERS[current]()}</div>
+    `;
+    stagesHost.querySelectorAll('input, textarea').forEach(el=>{
+      if(answers[el.name] !== undefined) el.value = answers[el.name];
+    });
+    wireChips();
+    if(current === 0) wireNicheGrid();
+    if(current === STAGES.length-1) wirePaymentStage();
+
+    updateNavButtons();
+  }
+
+  function saveStageValues(){
+    stagesHost.querySelectorAll('input, textarea').forEach(el=>{ answers[el.name] = el.value; });
+  }
+
+  function validateStage(){
+    let ok = true;
+    if(current === 0){
+      const nome = stagesHost.querySelector('[name=nome]');
+      const wpp = stagesHost.querySelector('[name=whatsapp]');
+      [nome, wpp].forEach(el=>{
+        const field = el.closest('.field');
+        if(!el.value.trim()){ field.classList.add('invalid'); ok=false; }
+        else field.classList.remove('invalid');
+      });
+      const grid = document.getElementById('nicheGrid');
+      const nicheErr = document.getElementById('nicheErr');
+      if(!answers.nicho_key){
+        grid.classList.add('invalid');
+        nicheErr.style.display = 'block';
+        ok = false;
+      } else {
+        grid.classList.remove('invalid');
+        nicheErr.style.display = 'none';
+      }
+    }
+    return ok;
+  }
+
+  function chipValues(prefix){
+    if(!answers.__chips) return [];
+    return Object.keys(answers.__chips)
+      .filter(k=>k.startsWith(prefix+'::'))
+      .map(k=>k.split('::')[1]);
+  }
+
+  function buildMessage(){
+    const a = answers;
+    const n = getNiche();
+    const nicheName = n ? n.label : (a.nicho_outro || 'não informado');
+    const lines = [];
+    lines.push('*Novo Briefing — Landing Page*');
+    lines.push('_via site Alien Marketing Inteligente_');
+    lines.push('');
+    lines.push('*Abdução*');
+    lines.push('Nicho: '+nicheName);
+    if(a.nome) lines.push('Nome: '+a.nome);
+    if(a.empresa) lines.push('Negócio/marca: '+a.empresa);
+    if(a.whatsapp) lines.push('WhatsApp: '+a.whatsapp);
+    if(a.email) lines.push('E-mail: '+a.email);
+    if(a.instagram) lines.push('Instagram: '+a.instagram);
+    if(a.cidades) lines.push('Cidades: '+a.cidades);
+    if(a.diferencial) lines.push('Diferencial: '+a.diferencial);
+    lines.push('');
+    lines.push('*Alinhamento Alien*');
+    if(chipValues('objetivo').length) lines.push('Objetivo: '+chipValues('objetivo').join(', '));
+    if(a.cta) lines.push('CTA principal: '+a.cta);
+    if(a.publico) lines.push('Público-alvo: '+a.publico);
+    if(chipValues('identidade').length) lines.push('Identidade visual: '+chipValues('identidade').join(', '));
+    if(a.cor_primaria) lines.push('Cores: '+a.cor_primaria+' / '+a.cor_secundaria+' / '+a.cor_apoio);
+    if(chipValues('sensacao').length) lines.push('Sensação desejada: '+chipValues('sensacao').join(', '));
+    lines.push('');
+    lines.push('*Desenvolvimento ('+nicheName+')*');
+    if(chipValues('especialidades').length) lines.push('Especialidades: '+chipValues('especialidades').join(', '));
+    if(a.q1) lines.push((n?n.q1:'Serviços')+': '+a.q1);
+    if(a.q2) lines.push((n?n.q2:'Dúvidas comuns')+': '+a.q2);
+    if(chipValues('secoes').length) lines.push('Seções: '+chipValues('secoes').join(', '));
+    if(chipValues('materiais').length) lines.push('Materiais disponíveis: '+chipValues('materiais').join(', '));
+    if(a.referencias) lines.push('Referências: '+a.referencias);
+    if(a.evitar) lines.push('Evitar: '+a.evitar);
+    lines.push('');
+    lines.push('*Evolução Alien*');
+    if(chipValues('dominio').length) lines.push('Domínio: '+chipValues('dominio').join(', '));
+    if(a.prazo) lines.push('Prazo: '+a.prazo);
+    if(a.orcamento) lines.push('Orçamento: '+a.orcamento);
+    if(a.obs) lines.push('Observações: '+a.obs);
+    return lines.join('\n');
+  }
+
+  btnNext.addEventListener('click', ()=>{
+    saveStageValues();
+    if(!validateStage()) return;
+    if(current < STAGES.length-1){
+      current++;
+      if(current === STAGES.length-1) paymentView = 'choice';
+      renderStepper();
+      renderStage();
+      document.getElementById('alienForm').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+
+  btnBack.addEventListener('click', ()=>{
+    saveStageValues();
+    if(current === STAGES.length-1 && paymentView !== 'choice'){
+      paymentView = 'choice';
+      rerenderStage5();
+      return;
+    }
+    if(current>0){ current--; renderStepper(); renderStage(); }
+  });
+
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 3200);
+  }
+
+  renderStepper();
+  renderStage();
+})();
+</script>
